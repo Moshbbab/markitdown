@@ -138,7 +138,9 @@ def _validate_files(paths: Sequence[Path]) -> None:
     if not paths:
         raise ValueError("لم يتم اختيار أي ملف.")
     if len(paths) > max_files:
-        raise ValueError(f"الحد الأقصى هو {max_files} ملفًا في العملية الواحدة.")
+        raise ValueError(
+            f"الحد الأقصى هو {max_files} ملفًا في العملية الواحدة."
+        )
 
     permitted = allowed_extensions()
     max_file_bytes = max_file_mb * 1024 * 1024
@@ -154,11 +156,15 @@ def _validate_files(paths: Sequence[Path]) -> None:
             )
         size = path.stat().st_size
         if size > max_file_bytes:
-            raise ValueError(f"يتجاوز الملف {path.name} حد {max_file_mb} MB.")
+            raise ValueError(
+                f"يتجاوز الملف {path.name} حد {max_file_mb} MB."
+            )
         total_bytes += size
 
     if total_bytes > max_total_bytes:
-        raise ValueError(f"يتجاوز مجموع الملفات حد {max_total_mb} MB.")
+        raise ValueError(
+            f"يتجاوز مجموع الملفات حد {max_total_mb} MB."
+        )
 
 
 def convert_paths(
@@ -182,7 +188,9 @@ def convert_paths(
             result = converter.convert_local(source)
             markdown = result.markdown.strip()
             if not markdown:
-                raise ValueError("أعاد المحول محتوى Markdown فارغًا.")
+                raise ValueError(
+                    "أعاد المحول محتوى Markdown فارغًا."
+                )
             output_path.write_text(markdown + "\n", encoding="utf-8")
             records.append(
                 ConversionRecord(
@@ -212,13 +220,21 @@ def convert_paths(
     report_path.write_text(_build_report(records), encoding="utf-8")
 
     if len(successful) == 1 and len(records) == 1:
-        return records, request_dir / successful[0].output_name  # type: ignore[arg-type]
+        return (
+            records,
+            request_dir / successful[0].output_name,  # type: ignore[arg-type]
+        )
 
     archive_path = request_dir / "markitdown-results.zip"
-    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    with zipfile.ZipFile(
+        archive_path, "w", compression=zipfile.ZIP_DEFLATED
+    ) as archive:
         for record in successful:
             if record.output_name:
-                archive.write(request_dir / record.output_name, arcname=record.output_name)
+                archive.write(
+                    request_dir / record.output_name,
+                    arcname=record.output_name,
+                )
         archive.write(report_path, arcname=report_path.name)
     return records, archive_path
 
@@ -228,7 +244,9 @@ def _build_report(records: Iterable[ConversionRecord]) -> str:
     for record in records:
         status = "نجاح" if record.success else "فشل"
         output = f" → `{record.output_name}`" if record.output_name else ""
-        lines.append(f"- **{status}:** `{record.source_name}`{output} — {record.message}")
+        lines.append(
+            f"- **{status}:** `{record.source_name}`{output} — {record.message}"
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -239,7 +257,11 @@ def build_ui_response(
     if uploaded_files is None:
         return "", None, "يرجى اختيار ملف واحد على الأقل."
 
-    paths = [uploaded_files] if isinstance(uploaded_files, str) else list(uploaded_files)
+    paths = (
+        [uploaded_files]
+        if isinstance(uploaded_files, str)
+        else list(uploaded_files)
+    )
     try:
         records, downloadable = convert_paths(paths)
     except ValueError as exc:
@@ -253,7 +275,9 @@ def build_ui_response(
         first = successful[0]
         preview = first.markdown[:DEFAULT_PREVIEW_CHARS]
         if len(first.markdown) > DEFAULT_PREVIEW_CHARS:
-            preview += "\n\n… تم اختصار المعاينة؛ الملف القابل للتنزيل كامل."
+            preview += (
+                "\n\n… تم اختصار المعاينة؛ الملف القابل للتنزيل كامل."
+            )
 
     status_lines = [
         f"تم بنجاح: {len(successful)}",
