@@ -13,7 +13,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create source archive
         run: |
-          tar --exclude=.git -czf markitdown-sandbox-source.tar.gz .
+          tar --exclude=.git -czf /tmp/markitdown-sandbox-source.tar.gz .
+          cp /tmp/markitdown-sandbox-source.tar.gz ./markitdown-sandbox-source.tar.gz
       - uses: actions/upload-artifact@v4
         with:
           name: markitdown-sandbox-source
