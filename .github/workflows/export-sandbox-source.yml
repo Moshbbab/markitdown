@@ -1,0 +1,27 @@
+name: Export sandbox source
+
+on:
+  push:
+    branches:
+      - agent/add-cloud-markdown-webapp
+    paths:
+      - ".github/workflows/export-sandbox-source.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/add-cloud-markdown-webapp
+      - name: Create source archive
+        run: |
+          tar --exclude=.git -czf markitdown-sandbox-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: markitdown-sandbox-source
+          path: markitdown-sandbox-source.tar.gz
+          retention-days: 1
