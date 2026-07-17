@@ -22,15 +22,14 @@ except ImportError:
 
 try:
     from tqdm import tqdm
+
     HAS_TQDM = True
 except ImportError:
     HAS_TQDM = False
 
 
 def convert_file(
-    md: MarkItDown,
-    input_file: Path,
-    output_dir: Path
+    md: MarkItDown, input_file: Path, output_dir: Path
 ) -> tuple[Path, bool, str]:
     """Convert a single file and return status."""
     try:
@@ -48,7 +47,7 @@ def batch_convert(
     extensions: Optional[list[str]] = None,
     max_workers: int = 4,
     recursive: bool = False,
-    enable_plugins: bool = False
+    enable_plugins: bool = False,
 ) -> dict:
     """
     Convert all matching files in directory.
@@ -89,11 +88,12 @@ def batch_convert(
     if HAS_TQDM:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(convert_file, md, f, output_dir): f
-                for f in files
+                executor.submit(convert_file, md, f, output_dir): f for f in files
             }
 
-            for future in tqdm(as_completed(futures), total=len(files), desc="Converting"):
+            for future in tqdm(
+                as_completed(futures), total=len(files), desc="Converting"
+            ):
                 file_path, success, error = future.result()
                 if success:
                     results["success"].append(str(file_path))
@@ -103,8 +103,7 @@ def batch_convert(
     else:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(convert_file, md, f, output_dir): f
-                for f in files
+                executor.submit(convert_file, md, f, output_dir): f for f in files
             }
 
             for i, future in enumerate(as_completed(futures), 1):
@@ -126,25 +125,26 @@ def main():
     parser.add_argument("input_dir", type=Path, help="Input directory")
     parser.add_argument("output_dir", type=Path, help="Output directory")
     parser.add_argument(
-        "-e", "--extensions",
+        "-e",
+        "--extensions",
         type=str,
-        help="Comma-separated file extensions (e.g., pdf,docx,pptx)"
+        help="Comma-separated file extensions (e.g., pdf,docx,pptx)",
     )
     parser.add_argument(
-        "-w", "--workers",
+        "-w",
+        "--workers",
         type=int,
         default=4,
-        help="Number of parallel workers (default: 4)"
+        help="Number of parallel workers (default: 4)",
     )
     parser.add_argument(
-        "-r", "--recursive",
+        "-r",
+        "--recursive",
         action="store_true",
-        help="Search subdirectories recursively"
+        help="Search subdirectories recursively",
     )
     parser.add_argument(
-        "--plugins",
-        action="store_true",
-        help="Enable MarkItDown plugins"
+        "--plugins", action="store_true", help="Enable MarkItDown plugins"
     )
 
     args = parser.parse_args()
@@ -171,7 +171,7 @@ def main():
         extensions=extensions,
         max_workers=args.workers,
         recursive=args.recursive,
-        enable_plugins=args.plugins
+        enable_plugins=args.plugins,
     )
 
     print()
