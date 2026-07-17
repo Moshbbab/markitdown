@@ -18,7 +18,8 @@ class ConverterResult(Protocol):
 
 
 class Converter(Protocol):
-    def convert_local(self, path: str | Path) -> ConverterResult: ...
+    def convert_local(self, path: str | Path) -> ConverterResult:
+        ...
 
 
 @dataclass(frozen=True)
@@ -102,9 +103,9 @@ def allowed_extensions() -> set[str]:
 
 def cleanup_stale_outputs() -> None:
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-    retention_seconds = _env_int(
-        "OUTPUT_RETENTION_HOURS", DEFAULT_RETENTION_HOURS
-    ) * 3600
+    retention_seconds = (
+        _env_int("OUTPUT_RETENTION_HOURS", DEFAULT_RETENTION_HOURS) * 3600
+    )
     cutoff = time.time() - retention_seconds
 
     for child in OUTPUT_ROOT.iterdir():
@@ -138,9 +139,7 @@ def _validate_files(paths: Sequence[Path]) -> None:
     if not paths:
         raise ValueError("لم يتم اختيار أي ملف.")
     if len(paths) > max_files:
-        raise ValueError(
-            f"الحد الأقصى هو {max_files} ملفًا في العملية الواحدة."
-        )
+        raise ValueError(f"الحد الأقصى هو {max_files} ملفًا في العملية الواحدة.")
 
     permitted = allowed_extensions()
     max_file_bytes = max_file_mb * 1024 * 1024
@@ -156,15 +155,11 @@ def _validate_files(paths: Sequence[Path]) -> None:
             )
         size = path.stat().st_size
         if size > max_file_bytes:
-            raise ValueError(
-                f"يتجاوز الملف {path.name} حد {max_file_mb} MB."
-            )
+            raise ValueError(f"يتجاوز الملف {path.name} حد {max_file_mb} MB.")
         total_bytes += size
 
     if total_bytes > max_total_bytes:
-        raise ValueError(
-            f"يتجاوز مجموع الملفات حد {max_total_mb} MB."
-        )
+        raise ValueError(f"يتجاوز مجموع الملفات حد {max_total_mb} MB.")
 
 
 def convert_paths(
@@ -188,9 +183,7 @@ def convert_paths(
             result = converter.convert_local(source)
             markdown = result.markdown.strip()
             if not markdown:
-                raise ValueError(
-                    "أعاد المحول محتوى Markdown فارغًا."
-                )
+                raise ValueError("أعاد المحول محتوى Markdown فارغًا.")
             output_path.write_text(markdown + "\n", encoding="utf-8")
             records.append(
                 ConversionRecord(
@@ -258,9 +251,7 @@ def build_ui_response(
         return "", None, "يرجى اختيار ملف واحد على الأقل."
 
     paths = (
-        [uploaded_files]
-        if isinstance(uploaded_files, str)
-        else list(uploaded_files)
+        [uploaded_files] if isinstance(uploaded_files, str) else list(uploaded_files)
     )
     try:
         records, downloadable = convert_paths(paths)
@@ -275,9 +266,7 @@ def build_ui_response(
         first = successful[0]
         preview = first.markdown[:DEFAULT_PREVIEW_CHARS]
         if len(first.markdown) > DEFAULT_PREVIEW_CHARS:
-            preview += (
-                "\n\n… تم اختصار المعاينة؛ الملف القابل للتنزيل كامل."
-            )
+            preview += "\n\n… تم اختصار المعاينة؛ الملف القابل للتنزيل كامل."
 
     status_lines = [
         f"تم بنجاح: {len(successful)}",

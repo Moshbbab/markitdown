@@ -15,9 +15,7 @@ CSS = """
 footer { display: none !important; }
 """
 
-with gr.Blocks(
-    title="MarkItDown — محول الملفات إلى Markdown", css=CSS
-) as demo:
+with gr.Blocks(title="MarkItDown — محول الملفات إلى Markdown", css=CSS) as demo:
     gr.Markdown(
         """
 # محول الملفات إلى Markdown
