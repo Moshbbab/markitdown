@@ -1,0 +1,39 @@
+name: Web app CI
+
+on:
+  pull_request:
+    paths:
+      - "webapp/**"
+      - "Dockerfile.web"
+      - ".dockerignore"
+      - ".github/workflows/webapp-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "webapp/**"
+      - "Dockerfile.web"
+      - ".dockerignore"
+      - ".github/workflows/webapp-ci.yml"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install MarkItDown
+        run: pip install -e packages/markitdown
+      - name: Compile web app
+        run: python -m py_compile webapp/app.py webapp/service.py
+      - name: Run service tests
+        run: python -m unittest discover -s webapp/tests -v
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build web image
+        run: docker build -f Dockerfile.web -t markitdown-web:test .
